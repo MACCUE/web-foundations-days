@@ -7,13 +7,14 @@ let notes = [
   { id: 5, text: "Call mum", category: "personal" },
 ];
 
-
+// 1. searchNotes(word)
 function searchNotes(word) {
+  if (!word) return [];
   const query = word.toLowerCase();
   return notes.filter((note) => note.text.toLowerCase().includes(query));
 }
 
-
+// 2. longestNote()
 function longestNote() {
   if (notes.length === 0) return null;
   return notes.reduce((longest, current) =>
@@ -21,7 +22,7 @@ function longestNote() {
   );
 }
 
-
+// 3. countByCategory()
 function countByCategory() {
   return notes.reduce((acc, note) => {
     acc[note.category] = (acc[note.category] || 0) + 1;
@@ -29,32 +30,39 @@ function countByCategory() {
   }, {});
 }
 
-
+// 4. getSummary()
 function getSummary() {
   const counts = countByCategory();
-  const totalNotes = notes.length;
-  const label = totalNotes === 1 ? "note" : "notes";
-  const categoryParts = Object.entries(counts)
-    .map(([cat, num]) => `${num} ${cat}`)
-    .join(", ");
+  const total = notes.length;
+  const label = total === 1 ? "note" : "notes";
+  
+  const personalCount = counts.personal || 0;
+  const workCount = counts.work || 0;
+  const studyCount = counts.study || 0;
 
-  return `${totalNotes} ${label}: ${categoryParts}.`;
+  return `${total} ${label}: ${personalCount} personal, ${workCount} work, ${studyCount} study.`;
 }
 
+// Helper function to normalize spaces & lowercasing
+function normalizeText(text) {
+  return text.trim().toLowerCase().replace(/\s+/g, ' ');
+}
 
+// 5. isDuplicate(text)
 function isDuplicate(text) {
-  const cleanInput = text.trim().toLowerCase();
+  if (!text) return false;
+  const cleanInput = normalizeText(text);
   return notes.some(
-    (note) => note.text.trim().toLowerCase() === cleanInput
+    (note) => normalizeText(note.text) === cleanInput
   );
 }
 
-
+// 6. addNote(text, category)
 function addNote(text, category) {
   const allowedCategories = ["personal", "work", "study"];
 
   if (!text || text.length < 1 || text.length > 200) {
-    console.log("Failed: Text must be 1-200 characters.");
+    console.log("Failed: Text length must be between 1 and 200 characters.");
     return false;
   }
 
@@ -64,12 +72,13 @@ function addNote(text, category) {
   }
 
   if (isDuplicate(text)) {
-    console.log("Failed: Duplicate note text detected.");
+    console.log("Failed: Duplicate note text.");
     return false;
   }
 
+  const newId = notes.length > 0 ? Math.max(...notes.map((n) => n.id)) + 1 : 1;
   const newNote = {
-    id: notes.length > 0 ? Math.max(...notes.map((n) => n.id)) + 1 : 1,
+    id: newId,
     text: text.trim(),
     category: category,
   };
@@ -78,14 +87,16 @@ function addNote(text, category) {
   return true;
 }
 
-
+// ==========================================
+// TESTS & CONSOLE LOGS
+// ==========================================
 
 console.log("--- 1. searchNotes ---");
-console.log(searchNotes("javascript")); arrays", category: "study" }]
-console.log(searchNotes("python"));   
+console.log(searchNotes("javascript")); 
+console.log(searchNotes("python"));     
 
 console.log("--- 2. longestNote ---");
-console.log(longestNote()); category: "work" 
+console.log(longestNote()); 
 
 console.log("--- 3. countByCategory ---");
 console.log(countByCategory()); 
@@ -94,9 +105,9 @@ console.log("--- 4. getSummary ---");
 console.log(getSummary()); 
 
 console.log("--- 5. isDuplicate ---");
-console.log(isDuplicate("  buy milk and BREAD ")); 
+console.log(isDuplicate("  buy  milk   and bread ")); 
 console.log(isDuplicate("Learn React"));            
 
 console.log("--- 6. addNote ---");
 console.log(addNote("Learn React", "study")); 
-console.log(addNote("Call mum", "personal"));  
+console.log(addNote("Call mum", "personal"));
