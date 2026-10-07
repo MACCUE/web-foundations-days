@@ -1,86 +1,167 @@
-// Select elements
-const textarea = document.querySelector("#note-text");
-const charCount = document.querySelector("#char-count");
-const wordCount = document.querySelector("#word-count");
-const clearBtn = document.querySelector("#clear-btn");
-const themeToggle = document.querySelector("#theme-toggle");
-
-// Storage keys
-const DRAFT_KEY = "draft";
-const THEME_KEY = "theme";
-
-// Update counts & classes
-function updateCounts() {
-  const text = textarea.value;
-  const numChars = text.length;
-
-  // Calculate words
-  const trimmed = text.trim();
-  const numWords = trimmed === "" ? 0 : trimmed.split(/\s+/).length;
-
-  // Exact string formatting required by prompt
-  charCount.textContent = `${numChars} / 200 characters`;
-  wordCount.textContent = `${numWords} words`;
-
-  // Manage warning & over classes
-  charCount.classList.remove("warning", "over");
-  if (numChars > 200) {
-    charCount.classList.add("over");
-  } else if (numChars > 180) {
-    charCount.classList.add("warning");
+// =====================================================
+// QuickNotes - Project 1 Solution
+// =====================================================
+ 
+// ---------- 1. Select elements ----------
+const form = document.querySelector("#note-form");
+const input = document.querySelector("#note-input");
+const categorySelect = document.querySelector("#note-category");
+const errorMessage = document.querySelector("#error-message");
+const searchInput = document.querySelector("#search-input");
+const list = document.querySelector("#notes-list");
+const count = document.querySelector("#note-count");
+const clearAllBtn = document.querySelector("#clear-all");
+ 
+const STORAGE_KEY = "quicknotes";
+const MAX_LENGTH = 200;
+ 
+// ---------- 2. State (the single source of truth) ----------
+let notes = loadNotes();
+ 
+// ---------- 3. Storage helpers ----------
+function loadNotes() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) return [];
+  try {
+    return JSON.parse(saved);
+  } catch (error) {
+    console.error("Saved notes were damaged. Starting fresh.", error);
+    return [];
   }
 }
-
-// Clear function
+ 
+function saveNotes() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+}
+ 
+// ---------- 4. Validation ----------
+function validate(text) {
+  if (text === "") return "Please type a note first.";
+  if (text.length > MAX_LENGTH) return "Notes must be 200 characters or fewer.";
+  return ""; // empty string = no error
+}
+ 
+function showError(message) {
+  errorMessage.textContent = message;
+}
+ 
+// ---------- 5. Helpers for display ----------
+function capitalise(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+ 
+function countMessage(total) {
+  if (total === 0) return "You have no notes yet.";
+  if (total === 1) return "You have 1 note.";
+  return `You have ${total} notes.`;
+}
+ 
+function createNoteElement(note) {
+  const li = document.createElement("li");
+  li.classList.add("note", `category-${note.category}`);
+ 
+  const body = document.createElement("div");
+  body.classList.add("note-body");
+ 
+  const text = document.createElement("p");
+  text.classList.add("note-text");
+  text.textContent = note.text; // textContent keeps user input safe
+ 
+  const meta = document.createElement("div");
+  meta.classList.add("note-meta");
+ 
+  const badge = document.createElement("span");
+  badge.classList.add("badge");
+  badge.textContent = capitalise(note.category);
+ 
+  const date = document.createElement("span");
+  date.textContent = note.createdAt;
+ 
+  meta.append(badge, date);
+  body.append(text, meta);
+ 
+  const del = document.createElement("button");
+  del.type = "button";
+  del.classList.add("delete-btn");
+  del.textContent = "Delete";
+  del.addEventListener("click", () => deleteNote(note.id));
+ 
+  li.append(body, del);
+  return li;
+}
+ 
+// ---------- 6. Render ----------
+function render() {
+  const query = searchInput.value.trim().toLowerCase();
+ 
+  const visibleNotes = notes.filter((note) =>
+    note.text.toLowerCase().includes(query)
+  );
+ 
+  list.innerHTML = ""; // safe: we are only clearing, not inserting user text
+ 
+  if (notes.length > 0 && visibleNotes.length === 0) {
+    const empty = document.createElement("li");
+    empty.classList.add("empty-message");
+    empty.textContent = "No notes match your search.";
+    list.appendChild(empty);
+  }
+ 
+  visibleNotes.forEach((note) => {
+    list.appendChild(createNoteElement(note));
+  });
+ 
+  count.textContent = countMessage(notes.length);
+  clearAllBtn.hidden = notes.length === 0; // hide when there is nothing to clear
+}
+ 
+// ---------- 7. Actions ----------
+function addNote(text, category) {
+  const note = {
+    id: Date.now(),
+    text: text,
+    category: category,
+    createdAt: new Date().toLocaleString(),
+  };
+  notes.unshift(note); // newest note first
+  saveNotes();
+  render();
+}
+ 
+function deleteNote(id) {
+  notes = notes.filter((note) => note.id !== id);
+  saveNotes();
+  render();
+}
+ 
 function clearAll() {
-  textarea.value = "";
-  localStorage.removeItem(DRAFT_KEY);
-  updateCounts();
+  if (!confirm("Delete all notes?")) return;
+  notes = [];
+  saveNotes();
+  render();
 }
-
-// Save draft and update on typing
-textarea.addEventListener("input", () => {
-  localStorage.setItem(DRAFT_KEY, textarea.value);
-  updateCounts();
-});
-
-// Clear button
-clearBtn.addEventListener("click", clearAll);
-
-// Escape key to clear
-textarea.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    clearAll();
+ 
+// ---------- 8. Event listeners ----------
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+ 
+  const text = input.value.trim();
+  const error = validate(text);
+ 
+  if (error) {
+    showError(error);
+    input.focus();
+    return; // stop here: do not add an invalid note
   }
+ 
+  showError("");
+  addNote(text, categorySelect.value);
+  input.value = "";
+  input.focus();
 });
-
-// Theme toggle
-themeToggle.addEventListener("click", () => {
-  const isDark = document.body.classList.toggle("dark");
-  if (isDark) {
-    themeToggle.textContent = "Light mode";
-    localStorage.setItem(THEME_KEY, "dark");
-  } else {
-    themeToggle.textContent = "Dark mode";
-    localStorage.setItem(THEME_KEY, "light");
-  }
-});
-
-// On load: restore saved draft & theme
-window.addEventListener("DOMContentLoaded", () => {
-  const savedDraft = localStorage.getItem(DRAFT_KEY);
-  if (savedDraft) {
-    textarea.value = savedDraft;
-  }
-
-  const savedTheme = localStorage.getItem(THEME_KEY);
-  if (savedTheme === "dark") {
-    document.body.classList.add("dark");
-    themeToggle.textContent = "Light mode";
-  } else {
-    document.body.classList.remove("dark");
-    themeToggle.textContent = "Dark mode";
-  }
-
-  updateCounts();
-});
+ 
+searchInput.addEventListener("input", render);
+clearAllBtn.addEventListener("click", clearAll);
+ 
+// ---------- 9. First render ----------
+render();

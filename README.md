@@ -1,17 +1,31 @@
-#web-Foundations-Daily Assignments
-# QuickNotes Application
-
-QuickNotes is a lightweight, responsive browser-based note-taking application built with plain HTML, CSS, and vanilla JavaScript.
-
+# QuickNotes
+ 
+QuickNotes is a simple, fast note-taking web app built with plain HTML,
+CSS and JavaScript. Users can add notes with a category, search them,
+delete them, and their notes are saved in the browser so they are still
+there after a refresh.
+ 
 ## Features
-- **Note Management**: Create and delete notes with distinct categories (Work, Personal, Ideas).
-- **Search & Filter**: Filter notes by category or search through note text in real time.
-- **Persistence**: Saved notes and active drafts persist across browser reloads using `localStorage`.
-- **Character & Word Counter**: Live counters for characters and words with limit warnings (>180 warning, >200 over).
-- **Dark Mode**: Persistent light/dark theme toggle utilizing CSS variables.
-- **Security**: DOM elements populated via `textContent` to protect against Cross-Site Scripting (XSS).
-
-## Structure
-- `index.html` - Semantic HTML structure
-- `style.css` - Custom styles and CSS variables for themes
-- `script.js` - Dynamic DOM updates, event handling, and localStorage logic
+ 
+- Add notes with a category (Personal, Work, Study)
+- Colour-coded note cards showing category and date
+- Validation for empty and over-long notes (max 200 characters)
+- Delete single notes or clear all notes (with confirmation)
+- Live search that filters notes as you type
+- Notes saved with localStorage
+- Responsive layout for phones and laptops
+ 
+## How to Run Locally
+ 
+1. Clone the repository:
+   `git clone https://github.com/MACCUE/web-foundations-days.git`
+2. Open the folder in VS Code.
+3. Right-click `index.html` and choose **Open with Live Server**.
+ 
+## What I Learned
+ 
+- How to structure a page with semantic HTML and accessible forms
+- How the CSS box model, Flexbox and media queries work together
+- How to store app data as an array of objects and render it to the DOM
+- Why `textContent` is safer than `innerHTML` for user input
+- How to save and load data with localStorage and JSON
