@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Directory</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="users.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1>User Directory</h1>
+      <p>Fetching users from JSONPlaceholder API</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Controls</h2>
+        <button id="load-users" type="button">Load Users</button>
+        <div style="margin-top: 12px;">
+          <label for="filter-input" class="visually-hidden">Filter users</label>
+          <input type="text" id="filter-input" placeholder="Filter by name..." autocomplete="off" />
+        </div>
+        <p id="status"></p>
+      </section>
+
+      <section class="card">
+        <h2>Users List</h2>
+        <ul id="users-list"></ul>
+      </section>
+    </main>
+  </body>
+</html>
