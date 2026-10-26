@@ -1,7 +1,18 @@
 # Course Reflection
-
-Reflecting on this intensive web foundations and system design journey, the most challenging concept for me was mastering asynchronous JavaScript workflows, handling network responses correctly with `async/await`, and architecting robust API integrations. I overcame this challenge by systematically breaking down client-server interactions, writing modular helper functions, and thoroughly testing edge cases like loading states and error handling.
-
-Reviewing my capstone project and applying the feedback received, I would further optimize the backend database indexing and query structures to handle high-concurrency read/write operations even more efficiently during large traffic surges.
-
-Moving forward, I plan to expand my technical skill set by diving deeper into cloud infrastructure, preparing for cloud certifications, and strengthening my expertise in secure system administration and full-stack development to build production-grade, scalable applications.
+ 
+The most difficult concept for me was asynchronous JavaScript. At
+first I did not understand why my code printed "Promise {<pending>}"
+instead of data. What helped was the idea that fetch returns a
+promise of a future value, and that await pauses only my function
+while the rest of the page keeps running. Rebuilding the user
+directory assignment twice, and watching the requests in the Network
+tab, made it click.
+ 
+In my capstone, the feedback said my architecture diagram had good
+components but I did not explain the cache invalidation clearly. I
+would improve this by showing the POST /notes flow step by step on
+the diagram, including exactly when the cached notes are deleted.
+ 
+Next, I want to build a real backend for QuickNotes with Node.js,
+Express and PostgreSQL, so that my API design and data model become
+working code. After that I plan to learn React.
